@@ -13,7 +13,7 @@ jobs:
         run: |
           set -x
           sudo apt-get -y update
-          sudo apt-get install -y curl wget gnupg2
+          sudo apt-get install -y curl wget gnupg2 jq
           source /etc/os-release
           sudo sh -c "echo 'deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /' > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list"
           wget -nv https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/xUbuntu_${VERSION_ID}/Release.key -O- | sudo apt-key add -
@@ -22,7 +22,8 @@ jobs:
           echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
           sudo apt-get update -qq -y
           sudo apt-get -qq --yes install podman helm
-          curl -sLo - https://github.com/FairwindsOps/pluto/releases/download/v5.10.2/pluto_5.10.2_linux_amd64.tar.gz | tar -xvzf - pluto
+          plutover=$(curl --location --silent 'https://api.github.com/repos/FairwindsOps/pluto/releases/latest' | jq -r '.tag_name')
+          curl -sLo - https://github.com/FairwindsOps/pluto/releases/download/${plutover}/pluto_$(echo ${plutover} | tr -d v)_linux_amd64.tar.gz | tar -xvzf - pluto
           sudo install -m755 pluto /usr/local/bin/pluto
       - uses: actions/checkout@v3
         with:
